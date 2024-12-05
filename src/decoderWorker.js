@@ -63,7 +63,9 @@ var OggOpusDecoder = function( config, Module ){
 
 OggOpusDecoder.prototype.decode = function( typedArray ) {
   var dataView = new DataView( typedArray.buffer );
-  this.getPageBoundaries( dataView ).map( function( pageStart ) {
+  const pageBoundaries = this.getPageBoundaries( dataView );
+  const length = pageBoundaries.length - 1;
+  pageBoundaries.map( function( pageStart, j ) {
     var headerType = dataView.getUint8( pageStart + 5, true );
     var pageIndex = dataView.getUint32( pageStart + 18, true );
 
@@ -95,7 +97,7 @@ OggOpusDecoder.prototype.decode = function( typedArray ) {
       }
 
       // End of stream
-      if ( headerType & 4 ) {
+      if ( headerType & 4 || j === length ) {
         this.sendLastBuffer();
       }
     }
